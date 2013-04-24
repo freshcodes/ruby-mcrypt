@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 
 touch MAINTAINER
 
-for ruby in 1.8.7 1.9.3
+for ruby in 1.8.7 1.9.3 2.0.0
 do
   rvm use $ruby
   rake clean
