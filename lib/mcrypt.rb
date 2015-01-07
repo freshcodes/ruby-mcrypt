@@ -155,6 +155,15 @@ class Mcrypt
     @padding
   end
 
+  # :call-seq:
+  #  additional_padding_block -> true or false
+  #
+  # Returns +true+ by default or false if explicitly set.
+  # See <tt>additional_padding_block=</tt>.
+  def additional_padding_block
+    @additional_padding_block
+  end
+
   # Set the cryptographic key to be used. This is the <em>final raw
   # binary representation</em> of the key (i.e. not base64 or hex-encoded).
   #
@@ -220,15 +229,16 @@ class Mcrypt
   # N.B. This is not a feature of libmcrypt but of this Ruby module.
   def padding=(padding_type)
     @padding = case padding_type.to_s
-      when "true", /\Apkcs[57]?\Z/
-        @padding = :pkcs
-      when /\Azeroe?s\Z/
-        @padding = :zeros
-      when "false", "none", ""
-        @padding = false
+      when "true", /\Apkcs[57]?\Z/ then :pkcs
+      when /\Azeroe?s\Z/ then :zeros
+      when "false", "none", "" then false
       else
         raise(ArgumentError, "invalid padding type #{padding_type.to_s}")
       end
+  end
+
+  def additional_padding_block=(val)
+    @additional_padding_block = val == false ? false : true
   end
 
   # Returns true if the mode in use operates in bytes.
@@ -374,6 +384,7 @@ class Mcrypt
   # here for processing.
   def after_init(key=nil,iv=nil,padding=nil)
     @padding = false
+    @additional_padding_block = true
     @buffer  = ""
 
     self.key = key if key
@@ -438,7 +449,8 @@ class Mcrypt
     end
 
     pad_size = block_size - buffer.length
-    pad_size = block_size if pad_size == 0  # add a block to disambiguate
+    pad_size = block_size if additional_padding_block && pad_size == 0  # add a block to disambiguate
+    pad_size = 0 if !additional_padding_block && buffer.length == 0 # do not add extra block
     pad_char = nil
     case padding
     when :pkcs
