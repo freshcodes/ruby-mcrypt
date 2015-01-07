@@ -6,7 +6,7 @@ supports lots of different ciphers and encryption modes.
 
 == You will need
 
-* A working Ruby installation (>= 1.8.6 or 1.9)
+* A working Ruby installation (>= 1.8.6 or 1.9 or 2.0)
 * A working libmcrypt installation (2.5.x or 2.6.x, tested with 2.5.8)
 * A sane build environment
 
